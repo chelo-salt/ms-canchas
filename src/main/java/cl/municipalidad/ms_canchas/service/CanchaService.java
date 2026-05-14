@@ -1,6 +1,7 @@
 package cl.municipalidad.ms_canchas.service;
 
 import org.springframework.stereotype.Service;
+import cl.municipalidad.ms_canchas.client.RecintoClient; // <-- Importar el cliente
 import cl.municipalidad.ms_canchas.dto.request.CanchaRequest;
 import cl.municipalidad.ms_canchas.dto.response.CanchaResponse;
 import cl.municipalidad.ms_canchas.model.CanchaModel;
@@ -15,8 +16,16 @@ import java.util.stream.Collectors;
 public class CanchaService {
 
     private final CanchaRepository canchaRepository;
+    private final RecintoClient recintoClient; // <-- Inyectar el cliente
 
     public CanchaResponse guardar(CanchaRequest request) {
+        
+        // --- LA VALIDACIÓN MÁGICA ---
+        if (!recintoClient.existeRecinto(request.getIdRecinto())) {
+            throw new RuntimeException("Error: El recinto con ID " + request.getIdRecinto() + " no existe en el sistema.");
+        }
+        // ----------------------------
+
         CanchaModel modelo = new CanchaModel();
         modelo.setNombre(request.getNombre());
         modelo.setTipo(request.getTipo());
