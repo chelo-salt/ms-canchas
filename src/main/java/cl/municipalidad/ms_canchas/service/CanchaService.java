@@ -1,7 +1,7 @@
 package cl.municipalidad.ms_canchas.service;
 
 import org.springframework.stereotype.Service;
-import cl.municipalidad.ms_canchas.client.RecintoClient; // <-- Importar el cliente
+import cl.municipalidad.ms_canchas.client.RecintoClient; 
 import cl.municipalidad.ms_canchas.dto.request.CanchaRequest;
 import cl.municipalidad.ms_canchas.dto.response.CanchaResponse;
 import cl.municipalidad.ms_canchas.model.CanchaModel;
@@ -16,15 +16,15 @@ import java.util.stream.Collectors;
 public class CanchaService {
 
     private final CanchaRepository canchaRepository;
-    private final RecintoClient recintoClient; // <-- Inyectar el cliente
+    private final RecintoClient recintoClient; 
 
     public CanchaResponse guardar(CanchaRequest request) {
         
         // --- LA VALIDACIÓN MÁGICA ---
+        // Verifica si el recinto existe llamando al otro microservicio (ms-recintos)
         if (!recintoClient.existeRecinto(request.getIdRecinto())) {
             throw new RuntimeException("Error: El recinto con ID " + request.getIdRecinto() + " no existe en el sistema.");
         }
-        // ----------------------------
 
         CanchaModel modelo = new CanchaModel();
         modelo.setNombre(request.getNombre());
@@ -44,7 +44,8 @@ public class CanchaService {
 
     private CanchaResponse mapearADto(CanchaModel modelo) {
         return CanchaResponse.builder()
-                .id(modelo.getIdCancha())
+                // REVISA AQUÍ: Si tu DTO usa .id() o .idCancha()
+                .id(modelo.getIdCancha()) 
                 .nombre(modelo.getNombre())
                 .tipo(modelo.getTipo())
                 .idRecinto(modelo.getIdRecinto())
