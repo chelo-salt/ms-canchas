@@ -22,7 +22,7 @@ public class CanchaService {
         
         // --- LA VALIDACIÓN MÁGICA ---
         // Verifica si el recinto existe llamando al otro microservicio (ms-recintos)
-        if (!recintoClient.existeRecinto(request.getIdRecinto())) {
+        if (!recintoClient.existeRecinto(request.getIdRecinto(), null)) {
             throw new RuntimeException("Error: El recinto con ID " + request.getIdRecinto() + " no existe en el sistema.");
         }
 
@@ -43,12 +43,19 @@ public class CanchaService {
     }
 
     private CanchaResponse mapearADto(CanchaModel modelo) {
+        // 1. Intentamos obtener la info extra del recinto
+        // Usamos el nuevo método de tu RecintoClient
+        var recintoInfo = recintoClient.obtenerPorId(modelo.getIdRecinto(), null);
+        
+        // 2. Si el recinto existe, sacamos el nombre, si no, ponemos un mensaje
+        String nombreRecinto = (recintoInfo != null) ? recintoInfo.getNombre() : "Recinto no encontrado";
+
         return CanchaResponse.builder()
-                // REVISA AQUÍ: Si tu DTO usa .id() o .idCancha()
                 .id(modelo.getIdCancha()) 
                 .nombre(modelo.getNombre())
                 .tipo(modelo.getTipo())
                 .idRecinto(modelo.getIdRecinto())
+                .nombreRecinto(nombreRecinto) // <-- Solo añadimos esta línea nueva
                 .precioHora(modelo.getPrecioHora())
                 .build();
     }
